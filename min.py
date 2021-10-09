@@ -40,7 +40,7 @@ def hec():
                 line["line"] = json.dumps(e)
                 for item in ("host", "dest_host", "dest_fqdn"):
                     if item in e:
-                        host = e["host"]
+                        host = e[item]
                         break
                 if "loggername" in e:
                     line["app"] = e["loggername"]
