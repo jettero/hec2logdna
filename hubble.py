@@ -14,7 +14,7 @@ app.logger.setLevel(10)
 
 HTTP = urllib3.PoolManager()
 HOSTNAME = socket.getfqdn()
-ENDPOINT = f"https://logs.logdna.com/logs/ingest?"
+ENDPOINT = f"https://logs.logdna.com/logs/ingest?tags=hubble"
 MAX_CONTENT_BYTES = 1e5
 MAX_READ = 500000
 
