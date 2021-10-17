@@ -1,23 +1,18 @@
 # log2dna gadgets
 
+I'm used to Splunk, but it costs too much for personal use. log2dna seems kinda
+cute, but there doesn't seem to be much in the way of tools to use.
 
-## hubble.py
+## todo
 
-I specifically wanted this so I wouldn't have to run a development Splunk while
-testing development of Hubble. While logdna definitely can't do the remarkable
-things Splunk does, it also doesn't need a license refresh every 6 months and
-doesn't cost more than my car for a tiny sized instance (I mean, if you don't
-wanna deal with developer licensing).
-
-So this hubble.py ... it's hubble specific in a lot of ways... I wish to make a
-more generic ... hrm...
-
-# todo
-
-* make a generic collector with plugins for noticing and reacting to types
-  (e.g., hubble)
-
-* make a hubble plugin
+* generic collector with plugins for noticing and reacting to types
+  * make a hubble plugin
+  * make a journald jso
 
 * make a plugin for the slick json output of journald and a log tail mechanism
   thereto
+
+## hubble.py
+
+This thing pretends to be a HEC endpoint, fixes up some of the hubble data
+fields and forwards the logs to logdna.
