@@ -1,8 +1,7 @@
-# DREAM
+# log2dna gadgets
 
-just a thought and a dream for the moment
 
-# hubble.py
+## hubble.py
 
 I specifically wanted this so I wouldn't have to run a development Splunk while
 testing development of Hubble. While logdna definitely can't do the remarkable
