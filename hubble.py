@@ -61,7 +61,7 @@ def hec():
     if not events:
         return Response("please give me event data. I want the event data.", status=300)
     dat = json.dumps({"lines": events})
-    url = f"{ENDPOINT}hostname={host}&now={now}"
+    url = f"{ENDPOINT}&hostname={host}&now={now}"
     app.logger.info("events=%d payload=%d url=%s", len(events), len(dat), url)
     res = HTTP.request("POST", url, body=dat, headers=headers)
     # app.logger.info("logdna res=%d %s", res.status, res.data)
