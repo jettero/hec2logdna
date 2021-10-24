@@ -1,2 +1,4 @@
 *.pyc
 .eggs
+*.egg-info
+version.py
