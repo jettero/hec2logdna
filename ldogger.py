@@ -24,7 +24,7 @@ def main(args):
         print(f"{res.status} {res.data}")
 
 
-if __name__ == "__main__":
+def entry_point():
     parser = argparse.ArgumentParser(
         description="ldogger like logdna logger, like /bin/logger, get it??",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -88,3 +88,7 @@ if __name__ == "__main__":
         main(args)
     except KeyboardInterrupt:
         pass
+
+
+if __name__ == "__main__":
+    entry_point()

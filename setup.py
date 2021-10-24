@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import sys
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
@@ -35,7 +36,7 @@ def read_file(x, *more):
 
 
 require = read_file("requirements.txt")
-tests_require = read_file("test-requirements.txt", require)
+tests_require = [x for x in read_file("test-requirements.txt", require) if not x.startswith("-r ")]
 setup_require = require + ["setuptools_scm"]
 
 setup(
@@ -56,6 +57,6 @@ setup(
     tests_require=tests_require,
     setup_requires=setup_require,
     entry_points={
-        "console_scripts": ["ldogger"],
+        "console_scripts": ["ldogger = ldogger:entry_point"],
     },
 )

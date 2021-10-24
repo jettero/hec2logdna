@@ -15,7 +15,7 @@ def test_headers():
 
 def test_url():
     url = d.gen_url(hostname="white-rabit", now=94712411)
-    assert url == "https://logs.logdna.com/logs?hostname=white-rabit&now=94712411"
+    assert url == "https://logs.logdna.com/logs/ingest?hostname=white-rabit&now=94712411"
 
     url = d.gen_url(hostname="white-rabit", tags=["supz", "mang"], now=94712417)
-    assert url == "https://logs.logdna.com/logs?hostname=white-rabit&now=94712417&tags=supz,mang"
+    assert url == "https://logs.logdna.com/logs/ingest?hostname=white-rabit&tags=supz,mang&now=94712417"
