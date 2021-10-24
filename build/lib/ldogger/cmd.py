@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# encoding: utf-8
+# coding: utf-8
 
 import argparse
 import logdna.dispatch as d
@@ -88,7 +88,3 @@ def entry_point():
         main(args)
     except KeyboardInterrupt:
         pass
-
-
-if __name__ == "__main__":
-    entry_point()

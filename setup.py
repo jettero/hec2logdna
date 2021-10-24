@@ -57,6 +57,6 @@ setup(
     tests_require=tests_require,
     setup_requires=setup_require,
     entry_points={
-        "console_scripts": ["ldogger = ldogger:entry_point"],
+        "console_scripts": ["ldogger = ldogger.cmd:entry_point"],
     },
 )
