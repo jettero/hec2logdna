@@ -2,3 +2,6 @@ flask
 gunicorn
 urllib3
 click
+
+# my callable-suppress branch of the rich lib
+git+https://github.com/jettero/rich.git@callable-suppress#egg=rich
