@@ -25,7 +25,13 @@ def read_file(x, *more):
     def _inner():
         with open(x, "r") as fh:
             for line in fh:
-                yield line.strip()
+                line = line.strip()
+                if line.startswith("#"):
+                    continue
+                if "#egg=" in line:
+                    yield line[line.rindex("#egg=") + 5 :]
+                elif line:
+                    yield line
 
     ret = list(_inner())
     for item in more:
