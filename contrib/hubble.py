@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# This dumb thing is a way to convince Hubble there's a spunk endpoint here.
+
 import os
 import json
 import time

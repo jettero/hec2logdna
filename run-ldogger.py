@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import sys
+# run the ldogger.cmd.ldogger()
+
+import sys, os
 
 sys.path.insert(0, ".")
-from ldogger.cmd import entry_point
+import ldogger.cmd
 
 if __name__ == "__main__":
-    entry_point()
+    name = os.path.basename(sys.argv[0]).replace("run-", "").replace(".py", "")
+    getattr(ldogger.cmd, name)()

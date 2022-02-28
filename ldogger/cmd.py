@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import sys
 import json, yaml
 import argparse
 import ldogger.dispatch as d
+import rich.traceback
 
 
 def main(args):
@@ -26,9 +28,21 @@ def main(args):
         print(yaml.dump(dat))
 
 
-def entry_point():
+def ldogger():
+    """
+    The entrypoint for the ldogger command
+    """
     parser = argparse.ArgumentParser(
-        description="ldogger like logdna logger, like /bin/logger, get it??",
+        description="""
+        ldogger — logdna + logger => ldogger
+
+        The purpose of this app is to send logs to app.logdna.com.
+
+        It has:
+          log tail modes that track positions to avoid dups in re-processing,
+          regexp systems to produce metadata fields,
+          probably other features we forgot to mention here.
+        """,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -78,14 +92,17 @@ def entry_point():
         args.verbose = True
 
     try:
-        # def recognize_me(x):
-        #     if "ldogger" in x:
-        #         return False
-        #     if "/logdna/logdna/" in x:
-        #         return False
-        #     return True
 
-        # rich.traceback.install(width=119, show_locals=True, suppress=[recognize_me])
+        def recognize_me(x):
+            if "ldogger" in x:
+                return False
+            if "/logdna/logdna/" in x:
+                return False
+            return True
+
+        rich.traceback.install(width=119, show_locals=True, suppress=[recognize_me])
         main(args)
+        sys.exit(0)
+
     except KeyboardInterrupt:
         pass
