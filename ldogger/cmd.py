@@ -73,7 +73,7 @@ def ldogger():
         action=KV,
         help="key value pairs for the meta field",
     )
-    parser.add_argument("--tags", nargs="*", type=str, help="a base field... a list of words")
+    parser.add_argument("--tags", type=str, help="a comma separated list of tags")
     parser.add_argument("--ip", type=str, help="ip address, one of the base fields")
     parser.add_argument("--mac", type=str, help="mac address, one of the base fields")
     parser.add_argument("--app", default="ldogger", type=str, help="another base field, the name of the app")
@@ -87,6 +87,8 @@ def ldogger():
     )
 
     args = parser.parse_args()
+
+    args.tags = [x.strip() for x in args.tags.split(",")]
 
     if args.dry_run:
         args.verbose = True
