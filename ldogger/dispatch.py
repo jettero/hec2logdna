@@ -3,7 +3,6 @@
 
 import os
 import json
-import yaml
 import time
 import base64
 import urllib3
@@ -101,7 +100,7 @@ def send(
     msg = {"lines": llines}
     if verbose:
         print(f"send() to {url}")
-        print("  " + yaml.dump(msg).replace("\n", "\n  "))
+        print("  " + json.dumps(msg, indent=2).replace("\n", "\n  "))
     msg = json.dumps(msg).encode()
     if dry_run:
         return msg
