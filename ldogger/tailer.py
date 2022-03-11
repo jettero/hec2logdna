@@ -10,6 +10,7 @@ from queue import Empty, Full
 
 class Tailer:
     TIMEOUT = 0.1
+    SENTINEL = "\x04\x04\x04\x04"
 
     def _start_tail(self):
         p = subprocess.Popen(self.cmd, stdout=subprocess.PIPE)
@@ -23,10 +24,12 @@ class Tailer:
             except Full:
                 if self.verbose:
                     print("queue stuffed, dropping log line")
-        print(f"process running {self.cmd} finished. closing queue")
+        print(f"process running {self.cmd} finished. dropping sentinel and closing queue")
+        self.q.put(self.SENTINEL)
         self.q.close()
 
     def __init__(self, *cmd, verbose=False):
+        self.done = False
         self.verbose = verbose
         self.cmd = cmd
         self.q = multiprocessing.Queue()
@@ -47,7 +50,12 @@ class Tailer:
 
     def get(self, timeout=TIMEOUT):
         try:
-            return self.q.get(timeout=timeout)
+            ret = self.q.get(timeout=timeout)
+            if ret == self.SENTINEL:
+                self.done = True
+                self.q.close()
+                return
+            return ret
         except Empty:
             pass
 
