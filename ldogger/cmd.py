@@ -56,6 +56,8 @@ def main(args):
             for t in to:
                 if line := t.get():
                     args.msg = [line]
+                    if args.regex_template:
+                        sys.exit(666)
                     rc = send_message(args)
             time.sleep(0.5 if args.verbose else 0.1)
             to = [t for t in to if not t.done]
@@ -70,10 +72,7 @@ def ldogger(*args):
     """
     The entrypoint for the ldogger command
     """
-    print(f"WTF1( args={args} sys.argv={sys.argv} )")
     args = get_arg_parser().process(*args)
-    print(f"WTF2( args={args} we should already have exited at this point )")
-    sys.exit(42)
 
     try:
 

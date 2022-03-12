@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import re
 import sys
 import shlex
 import argparse
+from collections import namedtuple
 from ldogger.dispatch import HOSTNAME
+
+RT = namedtuple("RT", ["pattern", "args"])
 
 
 class _KV(argparse.Action):
@@ -88,10 +92,12 @@ def get_arg_parser():
         "-r",
         "--regex-template",
         type=str,
-        default={},
-        action=_SKV,
+        default=[],
+        action="append",
         help=r"""
-        Add a regex pattern that adds tags, meta, app, or level arguments to the line.
+        Add a regex pattern that adds tags, meta, app, or level arguments to
+        the line.  Note that -r takes a single string and splits it with shell
+        parsing rules (shlex.split).
 
         If matched,
             `-r '"(?P<aaa>aaa)...(?P<bbb>bbb)" --meta aaa={aaa} --meta bbb={bbb}'`
@@ -181,18 +187,30 @@ def _process_arguments(parser, *args):  # aka def process()
         args.tail += args.msg
         args.msg = list()
 
-    if args.grok_args:
-        import json
+    def split_regex_templates(x):
+        for item in x:
+            pat, *args = shlex.split(item)
+            compiled_re = re.compile(pat)
+            yield RT(compiled_re, args)
 
-        print("args:", json.dumps(args.__dict__, indent=2))
-        print("\nconfig: TODO")
-        sys.exit(0)
+    args.regex_template = list(split_regex_templates(args.regex_template))
 
     if args.verbose:
         args.noise_marks = False
 
     elif sys.stdout.isatty():
         args.noise_marks = True
+
+    if args.grok_args:
+        import json
+
+        def encode_helper(o):
+            if isinstance(o, re.Pattern):
+                return o.pattern
+            return o
+
+        print("args:", json.dumps(args.__dict__, default=encode_helper, indent=2))
+        sys.exit(0)
 
     # bind our namespace to the reprocessor
     args.reprocess = _reprocess_arguments.__get__(args)
