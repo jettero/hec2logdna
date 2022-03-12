@@ -151,15 +151,17 @@ def get_arg_parser():
 
 
 def _process_arguments(parser, *args, initial=False):
+    # This is the first time we're in here if it's the first time or someone
+    # says we shold pretend it is.
     if not hasattr(parser, "oargs"):
         initial = True
 
-    # This is a little weird...
+    # This is a little weird …
     if initial:
         # The first time we call parser.process() we establish the "original args"
         parser.oargs = args = list(args or sys.argv[1:])
     else:
-        # on subsequent calls, we append the new args to the oargs
+        # On subsequent calls, we append the new args to the oargs (but not permanently)
         args = parser.oargs + args
 
     # we do the above so we can do things like
@@ -169,6 +171,20 @@ def _process_arguments(parser, *args, initial=False):
     # args = parser.process("--new", "shit", "for", "this", "line", "only")
 
     args = parser.parse_args(args)
+
+    # XXX: But now we have to reprocess EVERYTHING for each input line? Is this
+    # really a good idea?  are we overcomitting to these --regex-templates?
+    #
+    # We try to skip certain things below, but probably what we really need is
+    # a smaller argparser for the subsequent runs that only accepts --meta and
+    # --app and things.
+    #
+    # Maybe we can multiple inheritence the instances together or something? Is
+    # that a thing? merging Namespace instances via some kind of dumb
+    # inheritence trick? I rather doubt it …
+    #
+    # I know what I need to do, but I don't know if I have the syntax to do it.
+    #  - kylo
 
     args.tags = [x.strip() for x in args.tags.split(",")]
     args.tags = [x for x in args.tags if x]
@@ -182,22 +198,25 @@ def _process_arguments(parser, *args, initial=False):
 
     args.tail_shell_process = [flatten(x) for x in args.tail_shell_process]
 
-    if args.dry_run:
-        args.verbose = True
+    if initial:
+        if args.dry_run:
+            args.verbose = True
 
-    if args.tail:
-        args.tail += args.msg
-        args.msg = list()
+        if args.tail:
+            args.tail += args.msg
+            args.msg = list()
 
-    if args.grok_args:
-        import json
+        if args.grok_args:
+            import json
 
-        print("args:", json.dumps(args.__dict__, indent=2))
-        print("\nconfig: TODO")
-        sys.exit(0)
+            print("args:", json.dumps(args.__dict__, indent=2))
+            print("\nconfig: TODO")
+            sys.exit(0)
 
-    if args.verbose:
-        args.noise_marks = False
-    elif sys.stdout.isatty():
-        args.noise_marks = True
+        if args.verbose:
+            args.noise_marks = False
+
+        elif sys.stdout.isatty():
+            args.noise_marks = True
+
     return args
