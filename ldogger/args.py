@@ -73,7 +73,7 @@ def get_arg_parser():
         "--meta",
         type=str,
         default={},
-        metavar='"regexp" [arg [arg […]]]',
+        metavar="key=val",
         action=SKV,
         help="key value pairs for the meta field",
     )
