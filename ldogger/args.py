@@ -176,8 +176,6 @@ def _process_arguments(parser, *args, initial=False):
     # so we need to be able to say: but our actual arguments are:
     # args = parser.process("--new", "shit", "for", "this", "line", "only")
 
-    args = parser.parse_args(args)
-
     # XXX: But now we have to reprocess EVERYTHING for each input line? Is this
     # really a good idea?  are we overcomitting to these --regex-templates?
     #
@@ -191,6 +189,8 @@ def _process_arguments(parser, *args, initial=False):
     #
     # I know what I need to do, but I don't know if I have the syntax to do it.
     #  - kylo
+
+    args = parser.parse_args(args)
 
     args.tags = [x.strip() for x in args.tags.split(",")]
     args.tags = [x for x in args.tags if x]
