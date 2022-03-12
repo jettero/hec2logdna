@@ -151,6 +151,12 @@ def get_arg_parser():
 
 
 def _process_arguments(parser, *args, initial=False):
+
+    # convenience thing to avoid this horrible syntax
+    # args.process(*("--meta test1=1".split()))
+    if len(args) == 1 and isinstance(args[0], str) and " " in args[0]:
+        args = shlex.split(args[0])
+
     # This is the first time we're in here if it's the first time or someone
     # says we shold pretend it is.
     if not hasattr(parser, "oargs"):
