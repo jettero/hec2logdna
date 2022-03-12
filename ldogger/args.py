@@ -79,6 +79,7 @@ def get_arg_parser():
     )
     parser.add_argument(
         "-r",
+        "--regex-template",
         type=str,
         default={},
         action=KV,
