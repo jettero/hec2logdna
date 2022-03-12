@@ -8,6 +8,26 @@ from ldogger.dispatch import HOSTNAME
 
 
 def get_arg_parser():
+    """
+    Get the argparse.ArgumentParser object with the special .process() wrapper -- e.g.:
+
+        parser = get_arg_parser()
+        args_o = parser.process('--meta', 'neat=stuff')
+        args_s = parser.process('--meta', 'moar=stuff')
+
+    Note that args.process() has some special behavior:
+
+    The first call to args.process() stores/caches the args (either given or
+    from sys.argv[1:].  The resulting argparse.Namespace object is based on
+    those arguments.
+
+    Subsequent calls produce a new Namespace object based on whatever new args
+    are received merged with the previous arguments.
+
+    This allows for some switches to be added/learned/discovered after the
+    initial processing (useful for --regex-template processing, which is
+    per-input-line switch parsing/generation).
+    """
     parser = argparse.ArgumentParser(
         description="""
         ldogger — logdna + logger => ldogger
@@ -130,9 +150,12 @@ def get_arg_parser():
     return parser
 
 
-def _process_arguments(parser, *args):
-    # This is a little weird...
+def _process_arguments(parser, *args, initial=False):
     if not hasattr(parser, "oargs"):
+        initial = True
+
+    # This is a little weird...
+    if initial:
         # The first time we call parser.process() we establish the "original args"
         parser.oargs = args = list(args or sys.argv[1:])
     else:
