@@ -40,9 +40,9 @@ def send_message(args):
             rc = res.status
     if args.noise_marks:
         if rc == 0:
-            print(f"\x1b[32m.", end=" ")
+            print(f"\x1b[32mo", end="")
         else:
-            print(f"\x1b[31mxx", end=" ")
+            print(f"\x1b[31mx", end="")
     return rc
 
 
@@ -56,9 +56,12 @@ def main(args):
             for t in to:
                 if line := t.get():
                     args.msg = [line]
-                    if args.regex_template:
-                        sys.exit(666)
-                    rc = send_message(args)
+                    templates = list()
+                    for rt in args.regex_template:
+                        if m := rt.pat.search(line):
+                            gd = m.groupdict()
+                            templates.extend([x.format(**gd) for x in rt.args])
+                    rc = send_message(args.reprocess(*templates) if templates else args)
             time.sleep(0.5 if args.verbose else 0.1)
             to = [t for t in to if not t.done]
         print()

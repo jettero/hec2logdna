@@ -8,7 +8,7 @@ import argparse
 from collections import namedtuple
 from ldogger.dispatch import HOSTNAME
 
-RT = namedtuple("RT", ["pattern", "args"])
+RT = namedtuple("RT", ["pat", "args"])
 
 
 class _KV(argparse.Action):
@@ -18,7 +18,7 @@ class _KV(argparse.Action):
         nv = getattr(namespace, self.dest)
         try:
             if self.shell_parsing:
-                k, *v = shlex.split(kv)
+                k, *v = shlex.split(kv, posix=False)
             else:
                 k, v = kv.split("=")
                 try:
@@ -53,7 +53,7 @@ def get_arg_parser():
         action="append",
         default=list(),
         help="""tail shell commands.
-        Arguments are washed through shlex.split() and joined as a single flat list.
+        Arguments are washed through shlex.split(posix=False) and joined as a single flat list.
         `-p "ps auxfw"` comes out the same as `-p ps auxfw` => `["ps", "auxfw"]`.
         """,
     )
@@ -97,7 +97,7 @@ def get_arg_parser():
         help=r"""
         Add a regex pattern that adds tags, meta, app, or level arguments to
         the line.  Note that -r takes a single string and splits it with shell
-        parsing rules (shlex.split).
+        parsing rules (shlex.split(posix=False)).
 
         If matched,
             `-r '"(?P<aaa>aaa)...(?P<bbb>bbb)" --meta aaa={aaa} --meta bbb={bbb}'`
@@ -167,7 +167,7 @@ def _extra_processing(args):
 
 def _special_pre_processing(args):
     if len(args) == 1 and isinstance(args[0], str) and " " in args[0]:
-        return shlex.split(args[0])
+        return shlex.split(args[0], posix=False)
     return args
 
 
@@ -177,6 +177,13 @@ def _process_arguments(parser, *args):  # aka def process()
     args = _special_pre_processing(args)
     args = parser.parse_args(args) if args else parser.parse_args()  # passing empty args still ignores sys.argv
     args = _extra_processing(args)
+
+    def flatten(x):
+        def _f(x):
+            for w in x:
+                yield from shlex.split(w, posix=False)
+
+        return list(_f(x))
 
     args.tail_shell_process = [flatten(x) for x in args.tail_shell_process]
 
@@ -189,7 +196,7 @@ def _process_arguments(parser, *args):  # aka def process()
 
     def split_regex_templates(x):
         for item in x:
-            pat, *args = shlex.split(item)
+            pat, *args = shlex.split(item, posix=False)
             compiled_re = re.compile(pat)
             yield RT(compiled_re, args)
 
