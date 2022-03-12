@@ -7,63 +7,40 @@ import argparse
 from ldogger.dispatch import HOSTNAME
 
 
+class _KV(argparse.Action):
+    shell_parsing = False
+
+    def __call__(self, parser, namespace, kv, opiton_string=None):
+        nv = getattr(namespace, self.dest)
+        try:
+            if self.shell_parsing:
+                k, *v = shlex.split(kv)
+            else:
+                k, v = kv.split("=")
+                try:
+                    nv[k] = int(v)
+                except:
+                    try:
+                        nv[k] = float(v)
+                    except:
+                        nv[k] = str(v)
+        except Exception as e:
+            raise Exception(f"{kv} not understood, should be key=value format: {e}")
+
+
+class _SKV(_KV):
+    shell_parsing = True
+
+
 def get_arg_parser():
-    """
-    Get the argparse.ArgumentParser object with the special .process() wrapper -- e.g.:
-
-        parser = get_arg_parser()
-        args_o = parser.process('--meta', 'neat=stuff')
-        args_s = parser.process('--meta', 'moar=stuff')
-
-    Note that args.process() has some special behavior:
-
-    The first call to args.process() stores/caches the args (either given or
-    from sys.argv[1:].  The resulting argparse.Namespace object is based on
-    those arguments.
-
-    Subsequent calls produce a new Namespace object based on whatever new args
-    are received merged with the previous arguments.
-
-    This allows for some switches to be added/learned/discovered after the
-    initial processing (useful for --regex-template processing, which is
-    per-input-line switch parsing/generation).
-    """
     parser = argparse.ArgumentParser(
         description="""
         ldogger — logdna + logger => ldogger
 
         The purpose of this app is to send logs to app.logdna.com.
-
-        It has:
-          log tail modes that track positions to avoid dups in re-processing,
-          TODO: regexp systems to produce metadata fields,
-          TODO: probably other features we forgot to mention here.
         """,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-
-    class KV(argparse.Action):
-        shell_parsing = False
-
-        def __call__(self, parser, namespace, kv, opiton_string=None):
-            nv = getattr(namespace, self.dest)
-            try:
-                if self.shell_parsing:
-                    k, *v = shlex.split(kv)
-                else:
-                    k, v = kv.split("=")
-                    try:
-                        nv[k] = int(v)
-                    except:
-                        try:
-                            nv[k] = float(v)
-                        except:
-                            nv[k] = str(v)
-            except Exception as e:
-                raise Exception(f"{kv} not understood, should be key=value format: {e}")
-
-    class SKV(KV):
-        shell_parsing = True
 
     parser.add_argument(
         "-p",
@@ -88,42 +65,6 @@ def get_arg_parser():
     )
 
     parser.add_argument("msg", nargs="*", type=str, help="words to put in the 'line' field")
-    parser.add_argument(
-        "-m",
-        "--meta",
-        type=str,
-        default={},
-        metavar="key=val",
-        action=KV,
-        help="key value pairs for the meta field",
-    )
-    parser.add_argument(
-        "-r",
-        "--regex-template",
-        type=str,
-        default={},
-        action=SKV,
-        help="""
-        Add a regex pattern that adds tags, meta, app, or level arguments to the line.
-
-        If matched,
-            `-r '"(?P<aaa>aaa)...(?P<bbb>bbb)" --meta aaa={aaa} --meta bbb={bbb}'`
-        this regex will make the log entry seem as if it had --meta aaa=aaa --meta bbb=bbb
-        switches given on the command line.
-
-        And this,
-            `-r "'(?P<app>\w+)\[(?P<pid>\d+)\]' --app {app} --meta pid={pid}"`
-        will be as iff `--app MATCHED --meta pid=01234` was added.
-        """,
-    )
-    parser.add_argument("--tags", type=str, default="", help="a comma separated list of tags")
-    parser.add_argument("--ip", type=str, help="ip address, one of the base fields")
-    parser.add_argument("--mac", type=str, help="mac address, one of the base fields")
-    parser.add_argument("--app", default="ldogger", type=str, help="another base field, the name of the app")
-    parser.add_argument("--level", default="info", choices="trace debug info warning error critical".split())
-    parser.add_argument(
-        "-H", "--hostname", type=str, default=HOSTNAME, help="a required base field, hostname for the hostname field"
-    )
 
     parser.add_argument(
         "-n",
@@ -143,6 +84,38 @@ def get_arg_parser():
     parser.add_argument(
         "--grok-args", action="store_true", help="process switches and config files, report the results, and exit"
     )
+    parser.add_argument(
+        "-r",
+        "--regex-template",
+        type=str,
+        default={},
+        action=_SKV,
+        help=r"""
+        Add a regex pattern that adds tags, meta, app, or level arguments to the line.
+
+        If matched,
+            `-r '"(?P<aaa>aaa)...(?P<bbb>bbb)" --meta aaa={aaa} --meta bbb={bbb}'`
+        this regex will make the log entry seem as if it had --meta aaa=aaa --meta bbb=bbb
+        switches given on the command line.
+
+        And this,
+            `-r "'(?P<app>\w+)\[(?P<pid>\d+)\]' --app {app} --meta pid={pid}"`
+        will be as iff `--app MATCHED --meta pid=01234` was added.
+        """,
+    )
+
+    # XXX: Should --ip and --hostname be macroable? I definitley think not.
+    # They should be statically reported by the host sending the log lines ...
+    # right? right?  OTOH, what about hosts that process logs for other hosts
+    # (e.g., syslog forwarding). Let's figure this out later if we need it.
+
+    parser.add_argument("--ip", type=str, help="ip address, one of the base fields")
+    parser.add_argument(
+        "-H", "--hostname", type=str, default=HOSTNAME, help="a required base field, hostname for the hostname field"
+    )
+
+    # add these macroable arguments
+    _add_macroables(parser)
 
     # bind _process_arguments to parser
     parser.process = _process_arguments.__get__(parser)
@@ -150,79 +123,87 @@ def get_arg_parser():
     return parser
 
 
-def _process_arguments(parser, *args, initial=False):
+def _add_macroables(parser):
+    parser.add_argument(
+        "-m",
+        "--meta",
+        type=str,
+        default={},
+        metavar="key=val",
+        action=_KV,
+        help="key value pairs for the meta field",
+    )
+    parser.add_argument("--tags", type=str, default="", help="a comma separated list of tags")
+    parser.add_argument("--mac", type=str, help="mac address, one of the base fields")
+    parser.add_argument("--app", default="ldogger", type=str, help="another base field, the name of the app")
+    parser.add_argument("--level", default="info", choices="trace debug info warning error critical".split())
+    return parser
 
-    # convenience thing to avoid this horrible syntax
-    # args.process(*("--meta test1=1".split()))
-    if len(args) == 1 and isinstance(args[0], str) and " " in args[0]:
-        args = shlex.split(args[0])
 
-    # This is the first time we're in here if it's the first time or someone
-    # says we shold pretend it is.
-    if not hasattr(parser, "oargs"):
-        initial = True
-
-    # This is a little weird …
-    if initial:
-        # The first time we call parser.process() we establish the "original args"
-        parser.oargs = args = tuple(args or sys.argv[1:])
-    else:
-        # On subsequent calls, we append the new args to the oargs (but not permanently)
-        args = tuple(parser.oargs) + tuple(args)
-
-    # we do the above so we can do things like
-    # args = parser.process() to process sys.argv
-    # then later learn we have to add additional arguments via the -r templates (or whatever)
-    # so we need to be able to say: but our actual arguments are:
-    # args = parser.process("--new", "shit", "for", "this", "line", "only")
-
-    # XXX: But now we have to reprocess EVERYTHING for each input line? Is this
-    # really a good idea?  are we overcomitting to these --regex-templates?
-    #
-    # We try to skip certain things below, but probably what we really need is
-    # a smaller argparser for the subsequent runs that only accepts --meta and
-    # --app and things.
-    #
-    # Maybe we can multiple inheritence the instances together or something? Is
-    # that a thing? merging Namespace instances via some kind of dumb
-    # inheritence trick? I rather doubt it …
-    #
-    # I know what I need to do, but I don't know if I have the syntax to do it.
-    #  - kylo
-
+def _reprocess_arguments(namespace, *args):
+    args = _special_pre_processing(args)
+    parser = argparse.ArgumentParser(add_help=False)
+    _add_macroables(parser)
     args = parser.parse_args(args)
+    for k, v in namespace.meta.items():
+        if k not in args.meta:
+            args.meta[k] = v
+    args = _extra_processing(args)
+    args.tags += namespace.tags
+    return args
 
+
+def _extra_processing(args):
     args.tags = [x.strip() for x in args.tags.split(",")]
     args.tags = [x for x in args.tags if x]
+    return args
 
-    def flatten(x):
-        def _f(x):
-            for w in x:
-                yield from shlex.split(w)
 
-        return list(_f(x))
+def _special_pre_processing(args):
+    if len(args) == 1 and isinstance(args[0], str) and " " in args[0]:
+        return shlex.split(args[0])
+    return args
+
+
+def _process_arguments(parser, *args):  # aka def process()
+    # convenience thing to avoid this horrible syntax
+    # args.process(*("--meta test1=1".split()))
+    args = _special_pre_processing(args)
+    args = parser.parse_args(args) if args else parser.parse_args()  # passing empty args still ignores sys.argv
+    args = _extra_processing(args)
 
     args.tail_shell_process = [flatten(x) for x in args.tail_shell_process]
 
-    if initial:
-        if args.dry_run:
-            args.verbose = True
+    if args.dry_run:
+        args.verbose = True
 
-        if args.tail:
-            args.tail += args.msg
-            args.msg = list()
+    if args.tail:
+        args.tail += args.msg
+        args.msg = list()
 
-        if args.grok_args:
-            import json
+    if args.grok_args:
+        import json
 
-            print("args:", json.dumps(args.__dict__, indent=2))
-            print("\nconfig: TODO")
-            sys.exit(0)
+        print("args:", json.dumps(args.__dict__, indent=2))
+        print("\nconfig: TODO")
+        sys.exit(0)
 
-        if args.verbose:
-            args.noise_marks = False
+    if args.verbose:
+        args.noise_marks = False
 
-        elif sys.stdout.isatty():
-            args.noise_marks = True
+    elif sys.stdout.isatty():
+        args.noise_marks = True
+
+    # bind our namespace to the reprocessor
+    args.reprocess = _reprocess_arguments.__get__(args)
+
+    # this raw uncooked jank is to fix the way we just broke __repr__ in
+    # _AttributeHolder
+    okwa = args._get_kwargs
+
+    def our_kwargs(self):
+        return [x for x in okwa() if not callable(x[1])]
+
+    args._get_kwargs = our_kwargs.__get__(args)
 
     return args

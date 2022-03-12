@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# run the ldogger.cmd.ldogger()
-
 import sys, os
 
 sys.path.insert(0, ".")
+
 import ldogger.cmd
 
 if __name__ == "__main__":

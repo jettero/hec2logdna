@@ -66,16 +66,14 @@ def main(args):
         sys.exit(ec)
 
 
-def ldogger():
+def ldogger(*args):
     """
     The entrypoint for the ldogger command
     """
-    parser = get_arg_parser()
-    args = parser.process()
-
-    # This is a circular ref, but we should only do this once, so it probably
-    # doesn't matter ... until it does.
-    args.reprocess = parser.process
+    print(f"WTF1( args={args} sys.argv={sys.argv} )")
+    args = get_arg_parser().process(*args)
+    print(f"WTF2( args={args} we should already have exited at this point )")
+    sys.exit(42)
 
     try:
 
