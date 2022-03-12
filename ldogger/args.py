@@ -94,7 +94,7 @@ def get_arg_parser():
         type=str,
         default={},
         metavar="key=val",
-        action=SKV,
+        action=KV,
         help="key value pairs for the meta field",
     )
     parser.add_argument(
@@ -102,7 +102,7 @@ def get_arg_parser():
         "--regex-template",
         type=str,
         default={},
-        action=KV,
+        action=SKV,
         help="""
         Add a regex pattern that adds tags, meta, app, or level arguments to the line.
 
