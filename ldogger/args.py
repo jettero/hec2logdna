@@ -159,10 +159,10 @@ def _process_arguments(parser, *args, initial=False):
     # This is a little weird …
     if initial:
         # The first time we call parser.process() we establish the "original args"
-        parser.oargs = args = list(args or sys.argv[1:])
+        parser.oargs = args = tuple(args or sys.argv[1:])
     else:
         # On subsequent calls, we append the new args to the oargs (but not permanently)
-        args = parser.oargs + args
+        args = tuple(parser.oargs) + tuple(args)
 
     # we do the above so we can do things like
     # args = parser.process() to process sys.argv
