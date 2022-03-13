@@ -46,9 +46,6 @@ def gen_url(endpoint=ENDPOINT, tags=None, hostname=HOSTNAME, now=None, mac=None,
         now = int(now)
     if verbose:
         print(f"  - computed now={now}")
-    if tags is not None:
-        if not isinstance(tags, (list, tuple)):
-            tags = [tags]
     url = endpoint
     if verbose:
         print(f"  - starting with endpoint={endpoint}")
@@ -58,7 +55,7 @@ def gen_url(endpoint=ENDPOINT, tags=None, hostname=HOSTNAME, now=None, mac=None,
     if ip:
         args.append(f"ip={ip}")
     if tags:
-        args.append(f"tags={','.join(tags)}")
+        args.append(f"tags={','.join(sorted(tags))}")
     args.append(f"now={now}")
     if verbose:
         for arg in args:
