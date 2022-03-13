@@ -27,13 +27,16 @@ class KV(argparse.Action):
                 k, *v = shlex.split(kv, posix=False)
             else:
                 k, v = kv.split("=")
-                try:
-                    nv[k] = int(v)
-                except:
-                    try:
-                        nv[k] = float(v)
-                    except:
-                        nv[k] = str(v)
+                # we really want v to always be a string, or logdna will get
+                # confused about the meta field types eventually.
+                #
+                # try:
+                #     nv[k] = int(v)
+                # except:
+                #     try:
+                #         nv[k] = float(v)
+                #     except:
+                #         nv[k] = str(v)
         except Exception as e:
             raise Exception(f"{kv} not understood, should be key=value format: {e}")
 
