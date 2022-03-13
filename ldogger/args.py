@@ -11,7 +11,13 @@ from ldogger.dispatch import HOSTNAME
 RT = namedtuple("RT", ["pat", "args"])
 
 
-class _KV(argparse.Action):
+class TV(argparse.Action):
+    def __call__(self, parser, namespace, tv, opiton_string=None):
+        nv = getattr(namespace, self.dest)
+        nv.update(set([x.strip() for x in tv.split(",") if x]))
+
+
+class KV(argparse.Action):
     shell_parsing = False
 
     def __call__(self, parser, namespace, kv, opiton_string=None):
@@ -32,7 +38,7 @@ class _KV(argparse.Action):
             raise Exception(f"{kv} not understood, should be key=value format: {e}")
 
 
-class _SKV(_KV):
+class SKV(KV):
     shell_parsing = True
 
 
@@ -120,7 +126,6 @@ def get_arg_parser():
         "-H", "--hostname", type=str, default=HOSTNAME, help="a required base field, hostname for the hostname field"
     )
 
-    # add these macroable arguments
     _add_macroables(parser)
 
     # bind _process_arguments to parser
@@ -136,10 +141,10 @@ def _add_macroables(parser):
         type=str,
         default={},
         metavar="key=val",
-        action=_KV,
+        action=KV,
         help="key value pairs for the meta field",
     )
-    parser.add_argument("--tags", type=str, default="", help="a comma separated list of tags")
+    parser.add_argument("--tags", type=set, default=set(), action=TV, help="a comma separated list of tags")
     parser.add_argument("--mac", type=str, help="mac address, one of the base fields")
     parser.add_argument("--app", default="ldogger", type=str, help="another base field, the name of the app")
     parser.add_argument("--level", default="info", choices="trace debug info warning error critical".split())
@@ -150,22 +155,17 @@ def _reprocess_arguments(namespace, *args):
     args = _special_pre_processing(args)
     parser = argparse.ArgumentParser(add_help=False)
     _add_macroables(parser)
-    ns = argparse.Namespace(**{k: (dict(**v) if k == "meta" else v) for k, v in namespace._get_kwargs()})
-    ns.tags = ",".join(ns.tags)
+    ns = argparse.Namespace(**namespace.as_dict())
+    ns.meta = dict(ns.meta)  # copy
+    ns.tags = set(ns.tags)  # copy
     args = parser.parse_args(args, namespace=ns)
-    args = _extra_processing(args)
-    args.tags += namespace.tags
     add_other_janky_instance_methods(args)
     return args
 
 
-def _extra_processing(args):
-    args.tags = [x.strip() for x in args.tags.split(",")]
-    args.tags = [x for x in args.tags if x]
-    return args
-
-
 def _special_pre_processing(args):
+    # convenience thing to avoid this horrible syntax
+    # args.process(*("--meta test1=1".split()))
     if len(args) == 1 and isinstance(args[0], str) and " " in args[0]:
         return shlex.split(args[0], posix=False)
     return args
@@ -197,11 +197,8 @@ def add_other_janky_instance_methods(args):
 
 
 def _process_arguments(parser, *args):  # aka def process()
-    # convenience thing to avoid this horrible syntax
-    # args.process(*("--meta test1=1".split()))
     args = _special_pre_processing(args)
     args = parser.parse_args(args) if args else parser.parse_args()  # passing empty args still ignores sys.argv
-    args = _extra_processing(args)
 
     def flatten(x):
         def _f(x):
