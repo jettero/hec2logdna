@@ -27,8 +27,12 @@ class KV(argparse.Action):
                 k, *v = shlex.split(kv, posix=False)
             else:
                 k, v = kv.split("=")
+
                 # we really want v to always be a string, or logdna will get
                 # confused about the meta field types eventually.
+                nv[k] = f"{v}"
+
+                # we used to try to grok the type though
                 #
                 # try:
                 #     nv[k] = int(v)
