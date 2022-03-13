@@ -147,7 +147,7 @@ def _add_macroables(parser):
         action=KV,
         help="key value pairs for the meta field",
     )
-    parser.add_argument("--tags", type=set, default=set(), action=TV, help="a comma separated list of tags")
+    parser.add_argument("--tags", type=str, default=set(), action=TV, help="a comma separated list of tags")
     parser.add_argument("--mac", type=str, help="mac address, one of the base fields")
     parser.add_argument("--app", default="ldogger", type=str, help="another base field, the name of the app")
     parser.add_argument("--level", default="info", choices="trace debug info warning error critical".split())
