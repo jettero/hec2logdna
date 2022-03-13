@@ -150,12 +150,12 @@ def _reprocess_arguments(namespace, *args):
     args = _special_pre_processing(args)
     parser = argparse.ArgumentParser(add_help=False)
     _add_macroables(parser)
-    args = parser.parse_args(args)
-    for k, v in namespace.meta.items():
-        if k not in args.meta:
-            args.meta[k] = v
+    ns = argparse.Namespace(**{k: (dict(**v) if k == "meta" else v) for k, v in namespace._get_kwargs()})
+    ns.tags = ",".join(ns.tags)
+    args = parser.parse_args(args, namespace=ns)
     args = _extra_processing(args)
     args.tags += namespace.tags
+    add_other_janky_instance_methods(args)
     return args
 
 
@@ -169,6 +169,31 @@ def _special_pre_processing(args):
     if len(args) == 1 and isinstance(args[0], str) and " " in args[0]:
         return shlex.split(args[0], posix=False)
     return args
+
+
+def add_other_janky_instance_methods(args):
+    # this raw uncooked jank is to fix the way we just broke __repr__ in
+    # _AttributeHolder
+    okwa = args._get_kwargs
+
+    def our_kwargs(self):
+        return [x for x in okwa() if not callable(x[1])]
+
+    args._get_kwargs = our_kwargs.__get__(args)
+
+    # This is mainly used as a convenience in t/test_args.py
+    # … hopefully anway, cuz it's pretty janky
+    def as_dict(self):
+        def cp(v):
+            try:
+                return v.copy()
+            except:
+                pass
+            return v
+
+        return {k: cp(v) for k, v in self._get_kwargs()}
+
+    args.as_dict = as_dict.__get__(args)
 
 
 def _process_arguments(parser, *args):  # aka def process()
@@ -222,13 +247,7 @@ def _process_arguments(parser, *args):  # aka def process()
     # bind our namespace to the reprocessor
     args.reprocess = _reprocess_arguments.__get__(args)
 
-    # this raw uncooked jank is to fix the way we just broke __repr__ in
-    # _AttributeHolder
-    okwa = args._get_kwargs
-
-    def our_kwargs(self):
-        return [x for x in okwa() if not callable(x[1])]
-
-    args._get_kwargs = our_kwargs.__get__(args)
+    # do this for a few more silly callables
+    add_other_janky_instance_methods(args)
 
     return args

@@ -27,6 +27,12 @@ def test_process():
     a2 = a0.reprocess("--meta test4=4")
     assert a2.meta == {"test1": 1, "test2": 2, "test4": 4}
 
+    d0 = a0.as_dict()
+    d1 = a1.as_dict()
+    assert d0 != d1
+    del d1["meta"]["test3"]
+    assert d0 == d1
+
 
 def test_stupid_reprocess_args():
     p = get_arg_parser()
