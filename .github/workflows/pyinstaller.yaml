@@ -1,0 +1,28 @@
+
+
+name: pyinstaller
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Package Application
+      uses: JackMcKew/pyinstaller-action-linux@main
+      with:
+        path: .
+        spec: contrib/sj2l.spec
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: sj2l
+        path: src/dist/linux
