@@ -18,6 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - id: install-things
+      run: pip install -Ur bin-requirements.txt
+
     - id: pyinstaller
       run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
 
