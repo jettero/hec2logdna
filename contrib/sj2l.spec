@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['sj2l.py'],
+a = Analysis(['../sj2l.py'],
              pathex=[],
              binaries=[],
              datas=[],
