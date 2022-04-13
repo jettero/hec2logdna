@@ -12,7 +12,8 @@ import rich.traceback
 
 import ldogger.dispatch as d
 from ldogger.tailer import Tailer
-from ldogger.args import get_arg_parser
+from ldogger.args import get_ldogger_arg_parser, get_sj2l_arg_parser
+from ldogger.decoder import decode_journald_json
 
 
 def send_message(args):
@@ -39,10 +40,9 @@ def send_message(args):
         if not (200 <= res.status < 300):
             rc = res.status
     if args.noise_marks:
-        if rc == 0:
-            print(f"\x1b[32mo", end="")
-        else:
-            print(f"\x1b[31mx", end="")
+        mark = "32mo" if rc == 0 else "31mx"
+        print(f"\x1b[{mark}", end="")
+        sys.stdout.flush()
     return rc
 
 
@@ -75,7 +75,7 @@ def ldogger(*args):
     """
     The entrypoint for the ldogger command
     """
-    args = get_arg_parser().process(*args)
+    args = get_ldogger_arg_parser().process(*args)
 
     try:
 
@@ -88,6 +88,46 @@ def ldogger(*args):
 
         rich.traceback.install(width=119, show_locals=True, suppress=[recognize_me])
         main(args)
+        sys.exit(0)
+
+    except KeyboardInterrupt:
+        pass
+
+
+def just_tail_journalctl(args):
+    if args.only_n < 1:
+        t = Tailer("journalctl", "-o", "json", "-fn0")
+    else:
+        t = Tailer("journalctl", "-o", "json", f"-n{args.only_n}")
+
+    while not t.done:
+        while line := t.get():
+            decode_journald_json(args, line)
+            send_message(args)
+        time.sleep(0.5 if args.verbose else 0.1)
+    print()
+
+
+def sj2l(*args):
+    """
+    The entrypoint for the systemd-journald to logdna command
+    """
+
+    args = get_sj2l_arg_parser().process(*args)
+
+    try:
+
+        def recognize_me(x):
+            if "sj2l" in x:
+                return False
+            if "ldogger" in x:
+                return False
+            if "/logdna/logdna/" in x:
+                return False
+            return True
+
+        rich.traceback.install(width=119, show_locals=True, suppress=[recognize_me])
+        just_tail_journalctl(args)
         sys.exit(0)
 
     except KeyboardInterrupt:

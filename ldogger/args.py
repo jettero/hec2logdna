@@ -49,7 +49,81 @@ class SKV(KV):
     shell_parsing = True
 
 
-def get_arg_parser():
+def get_sj2l_arg_parser():
+    parser = argparse.ArgumentParser(
+        description="""
+        sj2l — systemd-journalder to logdna logger
+
+        The purpose of this app is to decode as much of the journald logs as possible and forward them to
+        to app.logdna.com with as much detail as possible.
+
+        (probably still a work in progress)
+        """,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parser.add_argument("-v", "--verbose", action="store_true", help="please tell me about internal things now")
+    parser.add_argument("-d", "--dry-run", action="store_true", help="don't actually send anything")
+    parser.add_argument(
+        "-n", "--only-n", type=int, default=0, help="only send n lines (anything less than 1 tails the log"
+    )
+
+    parser.add_argument(
+        "-N",
+        "--noise-marks",
+        action="store_true",
+        help="""
+    if not in verbose mode, print green '.'s for send_message() successes and
+    red 'x's for send_message() errors. -N is forced true when outputting to a
+    console and forced to false when in verbose mode.
+    """,
+    )
+
+    parser.add_argument("--ip", type=str, help="ip address, one of the base fields")
+    parser.add_argument(
+        "-H", "--hostname", type=str, default=HOSTNAME, help="a required base field, hostname for the hostname field"
+    )
+
+    parser.add_argument(
+        "--grok-args", action="store_true", help="process switches and config files, report the results, and exit"
+    )
+
+    _add_macroables(parser)
+
+    parser.process = _process_arguments_lite.__get__(parser)
+
+    return parser
+
+
+def _process_arguments_lite(parser, *args):  # aka def process()
+    args = parser.parse_args(*args)
+
+    if args.verbose:
+        args.noise_marks = False
+
+    elif sys.stdout.isatty():
+        args.noise_marks = True
+
+    return maybe_grok_args(args)
+
+
+def maybe_grok_args(args):
+    if args.grok_args:
+        import json
+
+        def encode_helper(o):
+            if isinstance(o, re.Pattern):
+                return o.pattern
+            if isinstance(o, set):
+                return list(o)
+            return o
+
+        print("args:", json.dumps(args.__dict__, default=encode_helper, indent=2))
+        sys.exit(0)
+    return args
+
+
+def get_ldogger_arg_parser():
     parser = argparse.ArgumentParser(
         description="""
         ldogger — logdna + logger => ldogger
@@ -81,7 +155,7 @@ def get_arg_parser():
         to be filenames for tailing as well.)""",
     )
 
-    parser.add_argument("msg", nargs="*", type=str, help="words to put in the 'line' field")
+    parser.add_argument("msg", nargs="*", default=list(), type=str, help="words to put in the 'line' field")
 
     parser.add_argument(
         "-n",
@@ -237,16 +311,7 @@ def _process_arguments(parser, *args):  # aka def process()
     elif sys.stdout.isatty():
         args.noise_marks = True
 
-    if args.grok_args:
-        import json
-
-        def encode_helper(o):
-            if isinstance(o, re.Pattern):
-                return o.pattern
-            return o
-
-        print("args:", json.dumps(args.__dict__, default=encode_helper, indent=2))
-        sys.exit(0)
+    maybe_grok_args(args)
 
     # bind our namespace to the reprocessor
     args.reprocess = _reprocess_arguments.__get__(args)

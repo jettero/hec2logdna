@@ -95,7 +95,7 @@ def send(
         if meta:
             l["meta"] = meta
     msg = {"lines": llines}
-    if verbose:
+    if dry_run or verbose:
         print(f"send() to {url}")
         print("  " + json.dumps(msg, indent=2).replace("\n", "\n  "))
     msg = json.dumps(msg).encode()
