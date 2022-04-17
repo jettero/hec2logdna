@@ -6,7 +6,7 @@ on:
     inputs: {}
 
 jobs:
-  call-binaries:
+  binaries:
     uses: ./.github/workflows/binaries.yaml
   release:
     runs-on: ubuntu-latest
