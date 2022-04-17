@@ -14,12 +14,10 @@ jobs:
     permissions:
       contents: write
     steps:
-    - run: pwd
-    - run: ls -al ./.github/workflows
+    - uses: actions/checkout@v2
     - uses: ./.github/workflows/pyinstaller.yaml
       # with:
         #  varname: valuehere
-    - uses: actions/checkout@v2
     - uses: ncipollo/release-action@v1
       with:
         artifacts: "sj2l"
