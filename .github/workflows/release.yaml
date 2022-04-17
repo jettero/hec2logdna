@@ -6,10 +6,13 @@ on:
     inputs: {}
 
 jobs:
+  call-binaries:
+    uses: ./github/workflows/binaries
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    needs: call-binaries
     steps:
     - uses: ncipollo/release-action@v1
       with:
