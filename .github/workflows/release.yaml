@@ -1,10 +1,7 @@
 
-name: releaser
+name: release
 
 on:
-  push:
-    tags:
-    - 'v*'
   workflow_dispatch:
     inputs: {}
 
