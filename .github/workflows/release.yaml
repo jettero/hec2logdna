@@ -8,7 +8,7 @@ on:
 jobs:
   call-binaries:
     uses: ./.github/workflows/binaries.yaml
-  build:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
