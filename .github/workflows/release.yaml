@@ -8,22 +8,25 @@ on:
 jobs:
   binaries:
     uses: ./.github/workflows/binaries.yaml
-  release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    needs: binaries
-    steps:
+  versioning:
       - uses: actions/checkout@v2
         # can't use git describe without tags... fetch-depth: 0 tells checkout to get tags (and things)
         with:
           fetch-depth: 0
       - run: git describe --always --tags | sed -e 's/\([0-9]\)-g\([a-f0-9]\)/\1-\2/g' | tee ver.txt
-      - uses: actions/download-artifact@v3
-        with:
-          name: sj2l
-          path: sj2l
       - uses: actions/upload-artifact@v2
         with:
           name: ver.txt
           path: ver.txt
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs: binaries, versioning
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: ver.txt
+      - uses: actions/download-artifact@v3
+        with:
+          name: sj2l
