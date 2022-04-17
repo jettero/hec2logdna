@@ -14,7 +14,4 @@ jobs:
       contents: write
     needs: call-binaries
     steps:
-    - uses: ncipollo/release-action@v1
-      with:
-        artifacts: "sj2l"
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - run: git describe | sed -e 's/\([0-9]\)-g/\1-/g'
