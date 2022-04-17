@@ -15,12 +15,14 @@ jobs:
     needs: binaries
     steps:
       - uses: actions/checkout@v2
+        # can't use git describe without tags... fetch-depth: 0 tells checkout to get tags (and things)
+        with:
+          fetch-depth: 0
+      - run: git describe --always --long | sed -e 's/\([0-9]\)-g/\1-/g' | tee ver.txt
       - uses: actions/download-artifact@v3
         with:
           name: sj2l
           path: sj2l
-      - run: git fetch --all --tags
-      - run: git describe --always --long | sed -e 's/\([0-9]\)-g/\1-/g' | tee ver.txt
       - uses: actions/upload-artifact@v2
         with:
           name: ver.txt
