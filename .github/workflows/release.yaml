@@ -5,6 +5,8 @@ on:
   push:
     tags:
     - 'v*'
+  workflow_dispatch:
+    inputs: {}
 
 jobs:
   build:
@@ -12,6 +14,9 @@ jobs:
     permissions:
       contents: write
     steps:
+    - uses: ./.github/workflows/pyinstaller
+      # with:
+        #  varname: valuehere
     - uses: actions/checkout@v2
     - uses: ncipollo/release-action@v1
       with:
