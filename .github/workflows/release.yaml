@@ -19,4 +19,4 @@ jobs:
         with:
           name: sj2l
           path: sj2l
-      - run: git describe | sed -e 's/\([0-9]\)-g/\1-/g' | tee ver.txt
+      - run: git describe --always --long | sed -e 's/\([0-9]\)-g/\1-/g' | tee ver.txt
