@@ -9,6 +9,7 @@ jobs:
   binaries:
     uses: ./.github/workflows/binaries.yaml
   versioning:
+    steps:
       - uses: actions/checkout@v2
         # can't use git describe without tags... fetch-depth: 0 tells checkout to get tags (and things)
         with:
@@ -17,7 +18,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: ver.txt
-          path: ver.txt
   release:
     runs-on: ubuntu-latest
     permissions:
