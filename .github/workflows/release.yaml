@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-binaries:
-    uses: ./github/workflows/binaries
+    uses: ./github/workflows/binaries@${{ github.sha }}
   build:
     runs-on: ubuntu-latest
     permissions:
