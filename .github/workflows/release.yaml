@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: write
     steps:
-    - uses: ./.github/workflows/pyinstaller
+    - uses: ./.github/workflows/pyinstaller.yaml
       # with:
         #  varname: valuehere
     - uses: actions/checkout@v2
