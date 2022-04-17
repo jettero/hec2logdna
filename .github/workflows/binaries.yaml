@@ -2,6 +2,8 @@
 name: binaries
 
 on:
+  workflow_call:
+    intputs: {}
   workflow_dispatch:
     inputs: {}
 
