@@ -18,7 +18,7 @@ jobs:
         # can't use git describe without tags... fetch-depth: 0 tells checkout to get tags (and things)
         with:
           fetch-depth: 0
-      - run: git describe --always --long | sed -e 's/\([0-9]\)-g/\1-/g' | tee ver.txt
+      - run: git describe --always --tags | sed -e 's/\([0-9]\)-g\([a-f0-9]\)/\1-\2/g' | tee ver.txt
       - uses: actions/download-artifact@v3
         with:
           name: sj2l
