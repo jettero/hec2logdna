@@ -12,11 +12,10 @@ jobs:
 
     strategy:
       matrix:
-        platform:
-          - os: ubuntu-18.04
-            ar: linux-x86_64
+        os:
+          - ubuntu-18.04
 
-    runs-on: ${{ matrix.platform.os }}
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
@@ -33,5 +32,5 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: sj2l-${{ matrix.platform.ar }}
+        name: sj2l/sj2l-${{ matrix.os }}
         path: dist/sj2l

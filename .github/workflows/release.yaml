@@ -31,7 +31,7 @@ jobs:
           path: ver.txt
       - uses: actions/download-artifact@v3
         with:
-          name: sj2l-*
+          name: sj2l
           path: .
       - name: create release
         run: |
@@ -51,9 +51,11 @@ jobs:
 
           gh release delete -y "$tag" &>/dev/null || :
 
+          ls -hal sj2l/
+
           PS4="== actual ==> "
           set -x
-          gh release create -d "${ghrc_args[@]}" sj2l-*
+          gh release create -d "${ghrc_args[@]}" sj2l/sj2l-*
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
