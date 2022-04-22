@@ -31,7 +31,7 @@ jobs:
           path: ver.txt
       - uses: actions/download-artifact@v3
         with:
-          name: sj2l
+          name: sj2l-*
           path: .
       - name: create release
         run: |
@@ -53,7 +53,7 @@ jobs:
 
           PS4="== actual ==> "
           set -x
-          gh release create "${ghrc_args[@]}" sj2l
+          gh release create -d "${ghrc_args[@]}" sj2l-*
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
