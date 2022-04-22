@@ -3,8 +3,8 @@ name: release
 
 on:
   push:
-    branches:
-      - develop
+    # branches:
+    #   - develop
     tags:
       - v*.*.*-?*
   workflow_dispatch:
@@ -51,11 +51,9 @@ jobs:
 
           gh release delete -y "$tag" &>/dev/null || :
 
-          ls -hal sj2l/
-
           PS4="== actual ==> "
           set -x
-          gh release create -d "${ghrc_args[@]}" sj2l/sj2l-*
+          gh release create "${ghrc_args[@]}" sj2l
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

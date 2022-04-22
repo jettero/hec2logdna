@@ -8,14 +8,9 @@ on:
     inputs: {}
 
 jobs:
-  build:
+  sj2l:
 
-    strategy:
-      matrix:
-        os:
-          - ubuntu-18.04
-
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-18.04
 
     steps:
     - uses: actions/checkout@v2
@@ -32,5 +27,5 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: sj2l/sj2l-${{ matrix.os }}
+        name: sj2l
         path: dist/sj2l
