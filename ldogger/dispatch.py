@@ -17,7 +17,7 @@ MAX_READ = 500000
 
 
 def gen_headers(content_type="application/json", charset="UTF-8", verbose=False):
-    token = os.environ.get("LOGDNA_TOKEN")
+    token = os.environ.get("LOGDNA_TOKEN", "")
     if token.startswith("@"):
         with open(token[1:], "r") as fh:
             token = fh.read()
