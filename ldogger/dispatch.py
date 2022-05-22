@@ -20,7 +20,7 @@ def gen_headers(content_type="application/json", charset="UTF-8", verbose=False)
     token = os.environ.get("LOGDNA_TOKEN", "")
     if token.startswith("@"):
         with open(token[1:], "r") as fh:
-            token = fh.read()
+            os.environ["LOGDNA_TOKEN"] = token = fh.read().strip()
     if not token:
         raise Exception("LOGDNA_TOKEN environment variable is required, but unset")
     btok = base64.b64encode(token.encode()).decode()
