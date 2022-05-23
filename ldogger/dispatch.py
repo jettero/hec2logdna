@@ -101,4 +101,13 @@ def send(
     msg = json.dumps(msg).encode()
     if dry_run:
         return msg
-    return HTTP.request("POST", url, body=msg, headers=headers)
+    try:
+        return HTTP.request("POST", url, body=msg, headers=headers)
+    except urllib3.exceptions.ProtocolError as e:
+
+        class FakeReply:
+            status = 0
+            reason = str(e)
+            data = b""
+
+        return FakeReply()
