@@ -20,7 +20,7 @@ def short(h=None):
 
 
 HTTP = urllib3.PoolManager()
-HOSTNAME = socket.getfqdn()
+HOSTNAME = short()
 ENDPOINT = "https://logs.logdna.com/logs/ingest"
 MAX_CONTENT_BYTES = 1e5
 MAX_READ = 500000
