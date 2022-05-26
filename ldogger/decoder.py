@@ -46,6 +46,7 @@ XLATE = {
     "_GID": "gid",
     "_SYSTEMD_CGROUP": "systemd_cgroup",
     "_SYSTEMD_SLICE": "systemd_slice",
+    "_SYSTEMD_UNIT": "systemd_unit",
     "_BOOT_ID": "boot_id",
     "_MACHINE_ID": "machine_id",
     "ERRNO": "errno",
@@ -64,7 +65,10 @@ def _decode_journald_json(args, x):
     for k in ("_SYSTEMD_UNIT", "SYSLOG_IDENTIFIER"):
         try:
             args.app = x[k]
-            break
+            if args.app.endswith(".service"):
+                # the UNIT is only preferable to the syslog identifier when
+                # we're talking about a service (not e.g. session-3.slice)
+                break
         except KeyError:
             pass
 
