@@ -9,6 +9,16 @@ import urllib3
 import socket
 import datetime
 
+
+def short(h=None):
+    if h is None:
+        h = socket.getfqdn()
+    while h.endswith("."):
+        h = h[:-1]
+    s = h.split(".")
+    return ".".join(s[:2])
+
+
 HTTP = urllib3.PoolManager()
 HOSTNAME = socket.getfqdn()
 ENDPOINT = "https://logs.logdna.com/logs/ingest"
