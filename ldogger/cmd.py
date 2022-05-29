@@ -17,7 +17,7 @@ from ldogger.decoder import decode_journald_json
 
 
 def send_message(args):
-    line = " ".join(args.msg)
+    line = " ".join(str(x) for x in args.msg)
     res = d.send(
         line,
         hostname=args.hostname,
