@@ -25,15 +25,15 @@ jobs:
     - id: pyinstaller ldogger
       run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./ldogger.py
 
-    - id: pyinstaller sj2l
+    - id: pyinstaller
       run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
 
     - uses: actions/upload-artifact@v3
       with:
-        name: ldogger
+        name: ldogger-linux-x86
         path: dist/ldogger
 
     - uses: actions/upload-artifact@v3
       with:
-        name: sj2l
+        name: sj2l-linux-x86
         path: dist/sj2l
