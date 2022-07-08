@@ -8,7 +8,7 @@ on:
     inputs: {}
 
 jobs:
-  'build binaries':
+  build:
 
     runs-on: ubuntu-18.04
 
