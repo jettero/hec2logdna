@@ -31,7 +31,11 @@ jobs:
           path: ver.txt
       - uses: actions/download-artifact@v3
         with:
-          name: sj2l
+          name: ldogger-linux-x86
+          path: .
+      - uses: actions/download-artifact@v3
+        with:
+          name: sj2l-linux-x86
           path: .
       - name: create release
         run: |
