@@ -23,17 +23,17 @@ jobs:
       run: pip install -Ur bin-requirements.txt
 
     - id: pyinstaller-ldogger
-      run: pyinstaller -n ldogger --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
+      run: pyinstaller -n ldogger-linux-x86 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
 
     - id: pyinstaller-sj2l
-      run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
+      run: pyinstaller -n sj2l-linux-x86 --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
 
     - uses: actions/upload-artifact@v3
       with:
         name: ldogger-linux-x86
-        path: dist/ldogger
+        path: dist/ldogger-linux-x86
 
     - uses: actions/upload-artifact@v3
       with:
         name: sj2l-linux-x86
-        path: dist/sj2l
+        path: dist/sj2l-linux-x86
