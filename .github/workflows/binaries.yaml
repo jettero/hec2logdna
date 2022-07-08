@@ -22,8 +22,16 @@ jobs:
     - id: install-things
       run: pip install -Ur bin-requirements.txt
 
-    - id: pyinstaller
+    - id: pyinstaller ldogger
+      run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./ldogger.py
+
+    - id: pyinstaller sj2l
       run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ldogger
+        path: dist/ldogger
 
     - uses: actions/upload-artifact@v3
       with:
