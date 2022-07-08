@@ -23,7 +23,7 @@ jobs:
       run: pip install -Ur bin-requirements.txt
 
     - id: pyinstaller-ldogger
-      run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./ldogger.py
+      run: pyinstaller -n ldogger --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
 
     - id: pyinstaller-sj2l
       run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
