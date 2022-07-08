@@ -57,7 +57,7 @@ jobs:
 
           PS4="== actual ==> "
           set -x
-          gh release create "${ghrc_args[@]}" sj2l
+          gh release create "${ghrc_args[@]}" sj2l-linux-x86 ldogger-linux-x86
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
