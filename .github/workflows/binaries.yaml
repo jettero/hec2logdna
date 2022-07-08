@@ -22,10 +22,10 @@ jobs:
     - id: install-things
       run: pip install -Ur bin-requirements.txt
 
-    - id: pyinstaller ldogger
+    - id: pyinstaller-ldogger
       run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./ldogger.py
 
-    - id: pyinstaller
+    - id: pyinstaller-sj2l
       run: pyinstaller --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
 
     - uses: actions/upload-artifact@v3
