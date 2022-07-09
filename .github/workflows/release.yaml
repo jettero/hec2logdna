@@ -18,27 +18,6 @@ jobs:
     needs: binaries
     steps:
       - uses: actions/checkout@v2
-        # can't use git describe without tags... fetch-depth: 0 tells checkout to get tags (and things)
-        with:
-          fetch-depth: 0
-      - name: ejaculate list of tags into tags.txt artifact
-        run: git tag -l | xargs -rn1 -IXXX git log -1 "--pretty=format:XXX :- %h %ae %s %ar%n" XXX | tee tags.txt
-      - name: compute version and store in ver.txt artifact
-        run: |
-          git tag -l | while read X; do
-          if [[ ! "$X" =~ ^v ]]
-          then git tag -d "$X"
-          fi
-          done
-          ./setup.py --version | sed -e 's/[+]g[0-9a-f]*$//' | tee ver.txt
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ver.txt
-          path: ver.txt
-      - uses: actions/upload-artifact@v2
-        with:
-          name: tags.txt
-          path: tags.txt
       - uses: actions/download-artifact@v3
         with:
           name: ldogger-linux-x86_64
@@ -47,26 +26,30 @@ jobs:
         with:
           name: sj2l-linux-x86_64
           path: .
+      - run: chmod 0755 *-linux-x86_64
+      - run: ./ldogger-linux-x86_64 --version | sed -e 's/\+g[0-9a-f][0-9a-f]*//' | tee ver.txt
+
       - name: create release
         run: |
           ver="$(< ver.txt)"
           ghrc_args=( --generate-notes )
 
-          if [[ "$ver" =~ -rc ]]
-          then prerelease+=( -p )
+          if [[ "$ver" =~ ([.]dev|-rc) ]]
+          then ghrc_args+=( -p )
           fi
 
-          if [[ "$ver" =~ ^v?[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]* ]]
-          then tag=v$ver; ghrc_args+=( -t "$ver" $tag )
+          if [[ "$ver" =~ ^v?[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]* ]]; then
+              if [[ "$ver" =~ ^v ]]
+              then tag=$ver
+              else tag=v$ver
+              fi
+              ghrc_args+=( -t "$ver" $tag )
           else
-            echo abort here to avoid creating an annoying tag and release name
-            exit 1
+              echo abort here to avoid creating an annoying tag and release name
+              exit 1
           fi
 
           gh release delete -y "$tag" &>/dev/null || :
-
-          PS4="== actual ==> "
-          set -x
           gh release create "${ghrc_args[@]}" sj2l-linux-x86_64 ldogger-linux-x86_64
 
         env:

@@ -9,8 +9,23 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
 
-    runs-on: ubuntu-18.04
+    # use of a really old container to roll back that base glibc verison.
+    # pythons compiled for older glibc work just fine on newer ones, but not
+    # the reverse
+    container: jettero/kersplat:1.0.25
+    env:
+      PATH: /usr/local/pyenv/bin:/usr/local/pyenv/shims:/bin:/sbin:/usr/bin:/usr/sbin
+      PYENV_ROOT: /usr/local/pyenv
+
+    strategy:
+      matrix:
+        bin:
+          - name: ldogger
+            file: run-ldogger.py
+          - name: sj2l
+            file: sj2l.py
 
     steps:
       - uses: actions/checkout@v2
@@ -18,39 +33,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v3
-        with:
-          python-version: '3.9'
+      - run: rm .python-version
+      - run: pip install -U pip wheel
+      - run: pip install -U setuptools_scm
+      - run: pip install -Ur bin-requirements.txt
 
-      - id: install-things
-        run: |
-          git tag -l | while read X; do
-          if [[ ! "$X" =~ ^v ]]
-          then git tag -d $X
-          fi
-          done
-          pip install -U pip wheel
-          pip install -U setuptools_scm
-          ./setup.py --version
-          pip install -Ur bin-requirements.txt
-
-      - id: pyinstaller-ldogger
-        run: pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onefile --noconfirm --log-level INFO ./run-ldogger.py
-
-      - id: pyinstaller-sj2l
-        run: pyinstaller -n sj2l-linux-x86_64 --specpath contrib/ --onefile --noconfirm --log-level INFO ./sj2l.py
-
-      - id: check-versions
-        run: |
-          ./dist/ldogger-linux-x86_64 --version
-          ./dist/sj2l-linux-x86_64 --version
+      - run: 'git tag -l | grep -v ^v[0-9] | xargs -rn1 git tag -d'
+      - run: ./setup.py --version
+      - run: |
+          pyinstaller -n ${{ matrix.bin.name }}-linux-x86_64 \
+            --specpath contrib/ --onefile --noconfirm --log-level INFO \
+            ./${{ matrix.bin.file }}
+      - run: ./dist/${{ matrix.bin.name }}-linux-x86_64 --version
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ldogger-linux-x86_64
-          path: dist/ldogger-linux-x86_64
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: sj2l-linux-x86_64
-          path: dist/sj2l-linux-x86_64
+          name: ${{ matrix.bin.name }}-linux-x86_64
+          path: dist/${{ matrix.bin.name }}-linux-x86_64
