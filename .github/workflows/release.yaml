@@ -24,9 +24,15 @@ jobs:
         with:
           fetch-depth: 0
       - name: ejaculate list of tags into tags.txt artifact
-        run: git tag -l | xargs -rn1 -IXXX git log -1 "--pretty=format:XXX :- %h %ae %s %ar" XXX > tags.txt
+        run: git tag -l | xargs -rn1 -IXXX git log -1 "--pretty=format:XXX :- %h %ae %s %ar%n" XXX | tee tags.txt
       - name: compute version and store in ver.txt artifact
-        run: ./setup.py --version | tee ver.txt
+        run: |
+          git tag -l | while read X; do
+          if [[ ! "$X" =~ ^v ]]
+          then git tag -d "$X"
+          fi
+          done
+          ./setup.py --version | tee ver.txt
       - uses: actions/upload-artifact@v2
         with:
           name: ver.txt
