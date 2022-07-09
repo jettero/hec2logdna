@@ -48,7 +48,7 @@ setup_require = require + ["setuptools_scm"]
 setup(
     name="ldogger",
     use_scm_version={
-        "write_to": "version.py",
+        "write_to": "ldogger/version.py",
         "tag_regex": r"^(?P<prefix>v)(?P<version>\d+\.\d+\.\d+)(?P<suffix>.*)?$",
         # NOTE: use ./setup.py --version to regenerate version.py and print the
         # computed version

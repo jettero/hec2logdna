@@ -1,7 +1,7 @@
 *.pyc
 .eggs
 *.egg-info
-/version.py
+/ldogger/version.py
 /build
 /dist
 /file
