@@ -31,11 +31,11 @@ jobs:
           path: ver.txt
       - uses: actions/download-artifact@v3
         with:
-          name: ldogger-linux-x86
+          name: ldogger-linux-x86_64
           path: .
       - uses: actions/download-artifact@v3
         with:
-          name: sj2l-linux-x86
+          name: sj2l-linux-x86_64
           path: .
       - name: create release
         run: |
@@ -57,7 +57,7 @@ jobs:
 
           PS4="== actual ==> "
           set -x
-          gh release create "${ghrc_args[@]}" sj2l-linux-x86 ldogger-linux-x86
+          gh release create "${ghrc_args[@]}" sj2l-linux-x86_64 ldogger-linux-x86_64
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
