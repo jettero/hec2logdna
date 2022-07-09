@@ -19,16 +19,18 @@ jobs:
       with:
         python-version: '3.9'
 
-    - id: setup-things
-      run: |
-        pip install -Ur bin-requirements.txt
-        ./setup --version
+    - id: install-things
+      run: pip install -Ur bin-requirements.txt
 
     - id: pyinstaller-ldogger
-      run: pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
+      run: |
+        ./setup.py --version || exit 1
+        pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
 
     - id: pyinstaller-sj2l
-      run: pyinstaller -n sj2l-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
+      run: |
+        ./setup.py --version || exit 1
+        pyinstaller -n sj2l-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
 
     - uses: actions/upload-artifact@v3
       with:
@@ -39,3 +41,8 @@ jobs:
       with:
         name: sj2l-linux-x86_64
         path: dist/sj2l-linux-x86_64
+
+    - id: check versions
+      run: |
+        ./dist/ldogger-linux-x86_64 --version
+        ./dist/sj2l-linux-x86_64 --version
