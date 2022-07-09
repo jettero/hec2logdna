@@ -8,6 +8,11 @@ import argparse
 from collections import namedtuple
 from ldogger.dispatch import HOSTNAME
 
+try:
+    from ldogger.version import __version__ as VERSION
+except:
+    VERSION = "unknown"
+
 RT = namedtuple("RT", ["pat", "args"])
 
 
@@ -62,6 +67,7 @@ def get_sj2l_arg_parser():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
+    parser.add_argument("-V", "--version", action="store_true", help="spit out the current version and exit")
     parser.add_argument("-v", "--verbose", action="store_true", help="please tell me about internal things now")
     parser.add_argument("-d", "--dry-run", action="store_true", help="don't actually send anything")
     parser.add_argument(
@@ -97,6 +103,10 @@ def get_sj2l_arg_parser():
 
 def _process_arguments_lite(parser, *args):  # aka def process()
     args = parser.parse_args(*args)
+
+    if args.version:
+        print(VERSION)
+        sys.exit(0)
 
     if args.verbose:
         args.noise_marks = False
@@ -167,6 +177,7 @@ def get_ldogger_arg_parser():
     console and forced to false when in verbose mode.
     """,
     )
+    parser.add_argument("-V", "--version", action="store_true", help="spit out the current version and exit")
     parser.add_argument("-v", "--verbose", action="store_true", help="please tell me about internal things now")
     parser.add_argument(
         "-d", "--dry-run", action="store_true", help="don't actually send, just turn on verbose and print things"
@@ -280,6 +291,10 @@ def add_other_janky_instance_methods(args):
 def _process_arguments(parser, *args):  # aka def process()
     args = _special_pre_processing(args)
     args = parser.parse_args(args) if args else parser.parse_args()  # passing empty args still ignores sys.argv
+
+    if args.version:
+        print(VERSION)
+        sys.exit(0)
 
     def flatten(x):
         def _f(x):
