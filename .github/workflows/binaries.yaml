@@ -20,17 +20,21 @@ jobs:
         python-version: '3.9'
 
     - id: install-things
-      run: pip install -Ur bin-requirements.txt
+      run: |
+        pip install -Ur bin-requirements.txt
+        git pull
+        git tag -l | while X; do
+        if [[ ! "$X" =~ ^v ]]
+        then git tag -d $X
+        fi
+        done
+        ./setup.py --version
 
     - id: pyinstaller-ldogger
-      run: |
-        ./setup.py --version || exit 1
-        pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
+      run: pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
 
     - id: pyinstaller-sj2l
-      run: |
-        ./setup.py --version || exit 1
-        pyinstaller -n sj2l-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
+      run: pyinstaller -n sj2l-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
 
     - uses: actions/upload-artifact@v3
       with:
