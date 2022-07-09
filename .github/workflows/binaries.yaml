@@ -13,40 +13,42 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+          # can't use git describe without tags... fetch-depth: 0 tells checkout to get tags (and things)
+        with:
+          fetch-depth: 0
 
-    - uses: actions/setup-python@v3
-      with:
-        python-version: '3.9'
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
 
-    - id: install-things
-      run: |
-        pip install -Ur bin-requirements.txt
-        git pull
-        git tag -l | while X; do
-        if [[ ! "$X" =~ ^v ]]
-        then git tag -d $X
-        fi
-        done
-        ./setup.py --version
+      - id: install-things
+        run: |
+          git tag -l | while read X; do
+          if [[ ! "$X" =~ ^v ]]
+          then git tag -d $X
+          fi
+          done
+          ./setup.py --version
+          pip install -Ur bin-requirements.txt
 
-    - id: pyinstaller-ldogger
-      run: pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
+      - id: pyinstaller-ldogger
+        run: pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
 
-    - id: pyinstaller-sj2l
-      run: pyinstaller -n sj2l-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
+      - id: pyinstaller-sj2l
+        run: pyinstaller -n sj2l-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./sj2l.py
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: ldogger-linux-x86_64
-        path: dist/ldogger-linux-x86_64
+      - id: check-versions
+        run: |
+          ./dist/ldogger-linux-x86_64/ldogger-linux-x86_64 --version
+          ./dist/sj2l-linux-x86_64/sj2l-linux-x86_64 --version
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: sj2l-linux-x86_64
-        path: dist/sj2l-linux-x86_64
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ldogger-linux-x86_64
+          path: dist/ldogger-linux-x86_64/ldogger-linux-x86_64
 
-    - id: check-versions
-      run: |
-        ./dist/ldogger-linux-x86_64 --version
-        ./dist/sj2l-linux-x86_64 --version
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sj2l-linux-x86_64
+          path: dist/sj2l-linux-x86_64/sj2l-linux-x86_64
