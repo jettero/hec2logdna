@@ -3,8 +3,6 @@ name: release
 
 on:
   push:
-    # branches:
-    #   - develop
     tags:
       - v*.*.*-?*
   workflow_dispatch:
@@ -32,7 +30,7 @@ jobs:
           then git tag -d "$X"
           fi
           done
-          ./setup.py --version | tee ver.txt
+          ./setup.py --version | sed -e 's/[+]g[0-9a-f]*$//' | tee ver.txt
       - uses: actions/upload-artifact@v2
         with:
           name: ver.txt
