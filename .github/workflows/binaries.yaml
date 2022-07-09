@@ -42,7 +42,7 @@ jobs:
         name: sj2l-linux-x86_64
         path: dist/sj2l-linux-x86_64
 
-    - id: check versions
+    - id: check-versions
       run: |
         ./dist/ldogger-linux-x86_64 --version
         ./dist/sj2l-linux-x86_64 --version
