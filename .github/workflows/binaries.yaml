@@ -29,8 +29,8 @@ jobs:
           then git tag -d $X
           fi
           done
-          pip install -Ur pip wheel
-          pip install -Ur setuptools_scm
+          pip install -U pip wheel
+          pip install -U setuptools_scm
           ./setup.py --version
           pip install -Ur bin-requirements.txt
 
