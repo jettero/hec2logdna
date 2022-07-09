@@ -23,12 +23,18 @@ jobs:
         # can't use git describe without tags... fetch-depth: 0 tells checkout to get tags (and things)
         with:
           fetch-depth: 0
+      - name: ejaculate list of tags into tags.txt artifact
+        run: git tag -l | xargs -rn1 -IXXX git log -1 "--pretty=format:XXX :- %h %ae %s %ar" XXX > tags.txt
       - name: compute version and store in ver.txt artifact
         run: ./setup.py --version | tee ver.txt
       - uses: actions/upload-artifact@v2
         with:
           name: ver.txt
           path: ver.txt
+      - uses: actions/upload-artifact@v2
+        with:
+          name: tags.txt
+          path: tags.txt
       - uses: actions/download-artifact@v3
         with:
           name: ldogger-linux-x86_64
