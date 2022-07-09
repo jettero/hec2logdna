@@ -19,8 +19,10 @@ jobs:
       with:
         python-version: '3.9'
 
-    - id: install-things
-      run: pip install -Ur bin-requirements.txt
+    - id: setup-things
+      run: |
+        pip install -Ur bin-requirements.txt
+        ./setup --version
 
     - id: pyinstaller-ldogger
       run: pyinstaller -n ldogger-linux-x86_64 --specpath contrib/ --onedir --noconfirm --log-level INFO ./run-ldogger.py
