@@ -48,7 +48,7 @@ jobs:
           then prerelease+=( -p )
           fi
 
-          if [[ "$ver" =~ ^v?[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]*$ ]]
+          if [[ "$ver" =~ ^v?[0-9][0-9]*.[0-9][0-9]*.[0-9][0-9]* ]]
           then tag=v$ver; ghrc_args+=( -t "$ver" $tag )
           else tag=bleed-$date; ghrc_args+=( -t "$date Bleeding Edge $ver" $tag )
           fi
