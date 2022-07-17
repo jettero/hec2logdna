@@ -33,7 +33,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: rm .python-version
       - run: pip install -U pip wheel
       - run: pip install -U setuptools_scm
       - run: pip install -Ur bin-requirements.txt
