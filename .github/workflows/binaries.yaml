@@ -14,7 +14,7 @@ jobs:
     # use of a really old container to roll back that base glibc verison.
     # pythons compiled for older glibc work just fine on newer ones, but not
     # the reverse
-    container: jettero/kersplat:1.0.25
+    container: jettero/kersplat:1.0.26
     env:
       PATH: /usr/local/pyenv/bin:/usr/local/pyenv/shims:/bin:/sbin:/usr/bin:/usr/sbin
       PYENV_ROOT: /usr/local/pyenv
