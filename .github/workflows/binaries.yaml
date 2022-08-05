@@ -16,7 +16,7 @@ jobs:
     # the reverse
     container: jettero/kersplat:1.0.28
     env:
-      PATH: /usr/local/pyenv/bin:/usr/local/pyenv/shims:/bin:/sbin:/usr/bin:/usr/sbin
+      PATH: /usr/local/pyenv/bin:/usr/local/pyenv/shims:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
       PYENV_ROOT: /usr/local/pyenv
 
     strategy:
