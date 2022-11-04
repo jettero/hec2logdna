@@ -42,6 +42,7 @@ jobs:
       - run: |
           pyinstaller -n ${{ matrix.bin.name }}-linux-x86_64 \
             --specpath contrib/ --onefile --noconfirm --log-level INFO \
+            --hidden-import certifi \
             ./${{ matrix.bin.file }}
       - run: ./dist/${{ matrix.bin.name }}-linux-x86_64 --version
 
