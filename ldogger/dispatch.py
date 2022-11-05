@@ -8,6 +8,11 @@ import base64
 import urllib3
 import socket
 import datetime
+import certifi
+
+ENDPOINT = "https://logs.logdna.com/logs/ingest"
+MAX_CONTENT_BYTES = 1e5
+MAX_READ = 500000
 
 
 def short(h=None):
@@ -19,11 +24,8 @@ def short(h=None):
     return ".".join(s[:2])
 
 
-HTTP = urllib3.PoolManager()
 HOSTNAME = short()
-ENDPOINT = "https://logs.logdna.com/logs/ingest"
-MAX_CONTENT_BYTES = 1e5
-MAX_READ = 500000
+HTTP = urllib3.PoolManager(cert_reqs="CERT_REQUIRED", ca_certs=certifi.where())
 
 
 def gen_headers(content_type="application/json", charset="UTF-8", verbose=False):
