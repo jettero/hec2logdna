@@ -3,7 +3,7 @@
 
 
 import os
-import logdna.dispatch as d
+import ldogger.dispatch as d
 
 
 def test_headers():
@@ -18,4 +18,4 @@ def test_url():
     assert url == "https://logs.logdna.com/logs/ingest?hostname=white-rabit&now=94712411"
 
     url = d.gen_url(hostname="white-rabit", tags=["supz", "mang"], now=94712417)
-    assert url == "https://logs.logdna.com/logs/ingest?hostname=white-rabit&tags=supz,mang&now=94712417"
+    assert url == "https://logs.logdna.com/logs/ingest?hostname=white-rabit&tags=mang,supz&now=94712417"
