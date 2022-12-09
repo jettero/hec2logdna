@@ -1,0 +1,13 @@
+
+
+# this is a file of test patterns after parsing, there should be just the 5
+# patterns in the FMFile. Woot.
+
+aba
+ababa
+a(ba)ba
+
+test
+
+
+pattern here

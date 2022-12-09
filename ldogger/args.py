@@ -69,6 +69,13 @@ def get_sj2l_arg_parser():
 
     parser.add_argument("-V", "--version", action="store_true", help="spit out the current version and exit")
     parser.add_argument("-v", "--verbose", action="store_true", help="please tell me about internal things now")
+    parser.add_argument(
+        "-f",
+        "--filter",
+        action="append",
+        type=str,
+        help="filename of patterns (one per line) to use to exclude matching loglines",
+    )
     parser.add_argument("-d", "--dry-run", action="store_true", help="don't actually send anything")
     parser.add_argument(
         "-n", "--only-n", type=int, default=0, help="only send n lines (anything less than 1 tails the log"

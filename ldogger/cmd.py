@@ -100,10 +100,13 @@ def just_tail_journalctl(args):
     else:
         t = Tailer("journalctl", "-o", "json", f"-n{args.only_n}")
 
+    fm = FilterMachine(args.filter)
+
     while not t.done:
         while line := t.get():
-            decode_journald_json(args, line)
-            send_message(args)
+            if fm(line):
+                decode_journald_json(args, line)
+                send_message(args)
         time.sleep(0.5 if args.verbose else 0.1)
     print()
 
