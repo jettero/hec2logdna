@@ -36,7 +36,7 @@ class FMFile:
 
 class FilterMachine:
     def __init__(self, files):
-        self.files = [FMFile(x) for x in files]
+        self.files = [FMFile(x) for x in files] if isinstance(files, (tuple, list)) else list()
         self.loaded = dict()
 
     def search(self, line):
