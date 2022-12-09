@@ -14,6 +14,7 @@ import ldogger.dispatch as d
 from ldogger.tailer import Tailer
 from ldogger.args import get_ldogger_arg_parser, get_sj2l_arg_parser
 from ldogger.decoder import decode_journald_json
+from ldogger.filter_machine import FilterMachine
 
 
 def send_message(args):
@@ -104,7 +105,7 @@ def just_tail_journalctl(args):
 
     while not t.done:
         while line := t.get():
-            if fm(line):
+            if not fm(line):
                 decode_journald_json(args, line)
                 send_message(args)
         time.sleep(0.5 if args.verbose else 0.1)
