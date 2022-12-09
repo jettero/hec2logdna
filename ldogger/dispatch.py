@@ -110,9 +110,10 @@ def send(
     if dry_run or verbose:
         print(f"send() to {url}")
         print("  " + json.dumps(msg, indent=2).replace("\n", "\n  "))
-    msg = json.dumps(msg).encode()
+    msg = json.dumps(msg)
     if dry_run:
         return msg
+    msg = msg.encode()
     try:
         return HTTP.request("POST", url, body=msg, headers=headers)
     except urllib3.exceptions.ProtocolError as e:

@@ -40,10 +40,10 @@ def send_message(args):
             print(" ", json.dumps(dat, indent=2).replace("\n", "\n  "))
         if not (200 <= res.status < 300):
             rc = res.status
-    if args.noise_marks:
-        mark = "32mo" if rc == 0 else "31mx"
-        print(f"\x1b[{mark}", end="")
-        sys.stdout.flush()
+        if args.noise_marks:
+            mark = "32mo" if rc == 0 else "31mx"
+            print(f"\x1b[{mark}", end="")
+            sys.stdout.flush()
     return rc
 
 
